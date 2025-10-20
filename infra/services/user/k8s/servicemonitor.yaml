@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: user
+  namespace: monitoring
+  labels:
+    release: monitoring    # <-- must match Helm release name of the stack
+spec:
+  selector:
+    matchLabels:
+      app: user
+  namespaceSelector:
+    matchNames: ["default"]   # where the Service lives
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s
+

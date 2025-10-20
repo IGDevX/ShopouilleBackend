@@ -1,0 +1,8 @@
+kube-prometheus-stack:
+  grafana:
+    adminPassword: dev123
+  alertmanager:
+    config:
+      route:
+        receiver: "dev-null"
+

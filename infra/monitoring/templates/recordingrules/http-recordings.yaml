@@ -1,0 +1,23 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: app-recordings
+  namespace: {{ .Values.namespace }}
+  labels:
+    release: {{ .Release.Name }}
+spec:
+  groups:
+    - name: http.helpers
+      rules:
+        - record: job:http_requests:rate5m
+          expr: sum by (job) (rate(http_requests_total[5m]))
+        - record: job:http_error_rate:ratio5m
+          expr: |
+            (
+              sum by (job) (rate(http_requests_total{code=~"5..|4.."}[5m]))
+            )
+            /
+            (
+              sum by (job) (rate(http_requests_total[5m]))
+            )
+

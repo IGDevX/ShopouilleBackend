@@ -1,0 +1,41 @@
+namespace: monitoring
+
+kube-prometheus-stack:
+  # Prometheus Operator, CRDs, Prometheus, Grafana, Alertmanager, exporters
+  grafana:
+    adminUser: admin
+    adminPassword: admin123               # CHANGE in env-specific values
+    service:
+      type: ClusterIP
+    sidecar:
+      dashboards:
+        enabled: true
+        label: grafana_dashboard
+        searchNamespace: ALL
+      datasources:
+        enabled: true
+    defaultDashboardsEnabled: true
+    # Optional: expose via Ingress later if you prefer
+    # ingress:
+    #   enabled: true
+    #   ingressClassName: nginx
+    #   hosts: [ grafana.example.com ]
+
+  prometheus:
+    prometheusSpec:
+      scrapeInterval: 30s
+      evaluationInterval: 30s
+      ruleSelectorNilUsesHelmValues: true
+      retention: 7d
+
+  alertmanager:
+    alertmanagerSpec:
+      replicas: 1
+    config:
+      global:
+        resolve_timeout: 5m
+      route:
+        receiver: "dev-null"   # replace in env files with Slack/Email
+      receivers:
+        - name: "dev-null"
+

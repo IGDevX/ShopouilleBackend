@@ -1,0 +1,14 @@
+kube-prometheus-stack:
+  grafana:
+    adminPassword: useAStrongSecretFromVaultOrSealedSecrets
+  alertmanager:
+    config:
+      route:
+        receiver: "slack"
+      receivers:
+        - name: "slack"
+          slack_configs:
+            - api_url: "https://hooks.slack.com/services/AAA/BBB/CCC"
+              channel: "#prod-alerts"
+              send_resolved: true
+

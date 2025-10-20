@@ -1,0 +1,35 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: app-alerts
+  namespace: {{ .Values.namespace }}
+  labels:
+    release: {{ .Release.Name }}
+spec:
+  groups:
+    - name: app.rules
+      rules:
+        - alert: HighErrorRate
+          expr: (sum(rate(http_requests_total{code=~"5..|4.."}[10m])) / sum(rate(http_requests_total[10m]))) > 0.02
+          for: 10m
+          labels: { severity: warning }
+          annotations:
+            summary: "High HTTP error rate (>2%)"
+            description: "HTTP error rate above 2% for 10m."
+
+        - alert: HighLatencyP95
+          expr: histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[10m]))) > 0.5
+          for: 10m
+          labels: { severity: warning }
+          annotations:
+            summary: "High p95 latency (>500ms)"
+            description: "95th percentile latency above 500ms for 10m."
+
+        - alert: HighCPUUsage
+          expr: sum by (namespace,pod,container) (rate(container_cpu_usage_seconds_total{container!="",pod!=""}[5m])) > 0.8
+          for: 10m
+          labels: { severity: warning }
+          annotations:
+            summary: "High CPU usage"
+            description: "Container CPU usage > 0.8 cores for 10m."
+

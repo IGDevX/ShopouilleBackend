@@ -1,0 +1,14 @@
+kube-prometheus-stack:
+  grafana:
+    adminPassword: stagingStrongPassword
+  alertmanager:
+    config:
+      route:
+        receiver: "slack"
+      receivers:
+        - name: "slack"
+          slack_configs:
+            - api_url: "https://hooks.slack.com/services/XXX/YYY/ZZZ"
+              channel: "#staging-alerts"
+              send_resolved: true
+
