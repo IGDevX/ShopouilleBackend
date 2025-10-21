@@ -28,11 +28,11 @@ pf-grafana:
 
 .PHONY: pf-prom
 pf-prom:
-	kubectl -n $(KUBE_NS) port-forward svc/$(RELEASE)-kube-prometheus-sta-prometheus 9090:9090
+	kubectl -n $(KUBE_NS) port-forward svc/$(RELEASE)-kube-prometheus-prometheus 9090:9090
 
 .PHONY: pf-am
 pf-am:
-	kubectl -n $(KUBE_NS) port-forward svc/$(RELEASE)-alertmanager 9093:9093
+	kubectl -n $(KUBE_NS) port-forward svc/$(RELEASE)-kube-prometheus-alertmanager 9093:9093
 
 .PHONY: status
 status:
