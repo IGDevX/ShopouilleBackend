@@ -1,0 +1,31 @@
+services: 
+    collector:
+      container_name: collector
+      image: otel/opentelemetry-collector-contrib:0.138.0
+      restart: unless-stopped
+      command:
+        - "--config=/etc/collector/config.yml"
+      volumes:
+        - ./infra/configurations/monitoring/collector/config.yaml:/etc/collector/config.yml
+      ports:
+        - 4317
+        - 11337
+      networks:
+        - grafana-logs-network
+    prometheus:
+      image: prom/prometheus:v3.7.2
+      container_name: prometheus
+      ports:
+        - "9090:9090"
+      volumes:
+        - ./infra/configurations/monitoring/prometheus/config.yaml:/etc/prometheus/prometheus.yml
+      command:
+        - "--config.file=/etc/prometheus/prometheus.yml"
+        - "--enable-feature=exemplar-storage"
+        - "--web.enable-remote-write-receiver" 
+      networks:
+        - grafana-logs-network
+
+networks:
+  grafana-logs-network:
+    name: grafana-logs-network
