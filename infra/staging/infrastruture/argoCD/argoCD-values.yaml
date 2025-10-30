@@ -16,3 +16,8 @@ server:
 configs:
   params:
     server.insecure: true
+
+repoServer:
+  env:
+    - name: ARGOCD_GIT_MODULES_ENABLED
+      value: "false"

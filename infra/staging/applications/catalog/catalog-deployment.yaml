@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: catalog-deployment
-  namespace: staging-devops
+  namespace: devops-staging
 spec:
   replicas: 1
   selector:
