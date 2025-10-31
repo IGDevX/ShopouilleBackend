@@ -4,7 +4,7 @@ metadata:
   name: otel-deployment
   labels:
     app: otel
-  namespace: staging-devops
+  namespace: devops-staging
 spec:
   replicas: 1
   selector:
