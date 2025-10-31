@@ -1,0 +1,6 @@
+.kube
+.terraform
+.terraform.*
+terraform.tfstate
+terraform.tfstate.*
+*-secret.yaml

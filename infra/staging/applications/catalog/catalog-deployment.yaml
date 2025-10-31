@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-deployment
+  namespace: devops-staging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catalog
+  template:
+    metadata:
+      name: catalog
+      labels:
+        app: catalog
+    spec:
+      containers:
+      - name: catalog
+        image: ghcr.io/igdevx/shopouille-catalog:latest
+        envFrom:
+        - configMapRef:
+            name: catalog-app-config
+        - secretRef:
+            name: catalog-db-secret

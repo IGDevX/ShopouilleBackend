@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-deployment
+  labels:
+    app: otel
+  namespace: devops-staging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel
+  template:
+    metadata:
+      labels:
+        app: otel
+    spec:
+      imagePullSecrets:
+      - name: docker-hub
+      containers:
+      - name: otel
+        image: otel/opentelemetry-collector-contrib:0.127.0
+        args: ["--config=/etc/collector/config.yml"]
+        volumeMounts:
+        - name: config
+          mountPath: /etc/collector/config.yml
+          subPath: config.yml
+      volumes:
+      - name: config
+        configMap:
+          name: collector-config

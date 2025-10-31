@@ -1,0 +1,23 @@
+server:
+  service:
+    type: ClusterIP
+    port: 80
+
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hostname: argo-staging-do.mathiaspuyfages.fr
+    path: /
+    pathType: Prefix
+    annotations:
+      kubernetes.io/ingress.class: "traefik"
+      traefik.ingress.kubernetes.io/ssl-redirect: "false"
+
+configs:
+  params:
+    server.insecure: true
+
+repoServer:
+  env:
+    - name: ARGOCD_GIT_MODULES_ENABLED
+      value: "false"
