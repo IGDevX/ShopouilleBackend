@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: prometheus-service
-  namespace: staging-devops
+  namespace: devops-staging
   annotations:
       prometheus.io/scrape: 'true'
       prometheus.io/port:   '9090'
