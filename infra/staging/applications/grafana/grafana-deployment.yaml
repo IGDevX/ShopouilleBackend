@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: devops-staging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      name: grafana
+      labels:
+        app: grafana
+    spec:
+      imagePullSecrets:
+      - name: docker-hub
+      containers:
+      - name: grafana
+        image: grafana/grafana:latest
+        ports:
+        - name: grafana
+          containerPort: 3000
+        resources:
+          limits:
+            memory: 500M
+            cpu: 1
+          requests: 
+            memory: 250M
+            cpu: 1
+      volumes:
+        - name: grafana-datasources
+          configMap:
+              defaultMode: 420
+              name: grafana-datasources
