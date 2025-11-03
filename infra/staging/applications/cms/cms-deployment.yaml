@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: catalog-deployment
+  name: cms-deployment
   namespace: devops-staging
 spec:
   replicas: 1
