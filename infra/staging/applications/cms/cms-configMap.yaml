@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cms-app-config
+  namespace: devops-staging
+data:
+  QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://postgres:5432/dbname"
