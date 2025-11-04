@@ -16,12 +16,12 @@ jobs:
 
     steps:
       - name: Checkout Dockerfile only
-      uses: actions/checkout@v4
-      with:
-        sparse-checkout: |
-          ${{ inputs.dockerfile_path || 'Dockerfile' }}
-        sparse-checkout-cone-mode: false
-        fetch-depth: 1
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            ${{ inputs.dockerfile_path || 'Dockerfile' }}
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
