@@ -6,6 +6,9 @@ on:
       artifact_name:
         required: true
         type: string
+      dockerfile_path:
+        required: true
+        type: string
 
 jobs:
   build:
