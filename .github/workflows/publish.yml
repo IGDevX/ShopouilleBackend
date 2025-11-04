@@ -3,6 +3,9 @@ name: Build & Publish docker image workflow
 on:
   workflow_call:
     inputs:
+      artifact_name:
+        required: true
+        type: string
       dockerfile_path:
         required: false
         type: string
@@ -26,7 +29,7 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: ${{ github.sha }}
+          name: ${{ inputs.artifact_name }}
 
       - name: Docker Login to GHCR
         uses: docker/login-action@v3
