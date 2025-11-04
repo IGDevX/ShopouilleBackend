@@ -40,6 +40,9 @@ jobs:
         run: |
           REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           echo "REPO_LOWER=$REPO_LOWER" >> $GITHUB_ENV
+
+      - name: List workspace files
+        run: ls -R .
  
       - name: Build and push
         uses: docker/build-push-action@v6
