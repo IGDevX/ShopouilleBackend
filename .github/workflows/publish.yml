@@ -4,8 +4,8 @@ on:
   workflow_call:
     inputs:
       dockerfile_path:
-	required: false
-	type: string
+        required: false
+        type: string
 
 jobs:
   build:
