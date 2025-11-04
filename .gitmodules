@@ -1,9 +1,9 @@
-[submodule "services/shopouille-cms"]
-	path = services/shopouille-cms
-	url = git@github.com:IGDevX/shopouille-cms.git
-[submodule "services/shopouille-catolog"]
-	path = services/shopouille-catolog
-	url = git@github.com:IGDevX/shopouille-catalog.git
-[submodule "services/shopouille-user"]
-	path = services/shopouille-user
+[submodule "services/user"]
+	path = services/user
 	url = git@github.com:IGDevX/shopouille-user.git
+[submodule "services/cms"]
+	path = services/cms
+	url = git@github.com:IGDevX/shopouille-cms.git
+[submodule "services/catalog"]
+	path = services/catalog
+	url = git@github.com:IGDevX/shopouille-catalog.git
