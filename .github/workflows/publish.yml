@@ -3,9 +3,6 @@ name: Build & Publish docker image workflow
 on:
   workflow_call:
     inputs:
-      artifact_name:
-        required: true
-        type: string
       dockerfile_path:
         required: true
         type: string
@@ -21,10 +18,17 @@ jobs:
       - name: Checkout Dockerfile only
         uses: actions/checkout@v4
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
         with:
-          name: ${{ inputs.artifact_name }}
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+
+      - name: Assemble
+        run: ./gradlew assemble
 
       - name: Docker Login to GHCR
         uses: docker/login-action@v3
@@ -41,9 +45,6 @@ jobs:
           REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           echo "REPO_LOWER=$REPO_LOWER" >> $GITHUB_ENV
 
-      - name: List workspace files
-        run: ls -R .
- 
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
