@@ -6,9 +6,6 @@ on:
       artifact_name:
         required: true
         type: string
-      dockerfile_path:
-        required: false
-        type: string
 
 jobs:
   build:
@@ -21,9 +18,6 @@ jobs:
       - name: Checkout Dockerfile only
         uses: actions/checkout@v4
         with:
-          sparse-checkout: |
-            ${{ inputs.dockerfile_path || 'Dockerfile' }}
-          sparse-checkout-cone-mode: false
           fetch-depth: 1
 
       - name: Download build artifacts
