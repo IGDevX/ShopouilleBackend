@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: catalog
-        image: ghcr.io/igdevx/shopouille-cms:c5f06dd5f2ebe1625bd48c925260d3a8a884e07a
+        image: ghcr.io/igdevx/shopouille-cms:710c9a1ab00cfe1b320d63b4c38d211e4185fac7
         envFrom:
         - configMapRef:
             name: cms-app-config
