@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: catalog-app-config
+  name: front-app-config
   namespace: devops-staging
 data:
   VITE_API_URL: "back-shopouille.mathiaspuyfages.fr/catalog"
