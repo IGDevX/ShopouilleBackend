@@ -7,15 +7,15 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: catalog
+      app: cms
   template:
     metadata:
-      name: catalog
+      name: cms
       labels:
-        app: catalog
+        app: cms
     spec:
       containers:
-      - name: catalog
+      - name: cms
         image: ghcr.io/igdevx/shopouille-cms:0796974f579af61c03a4edef91eb6a5102a35802
         envFrom:
         - configMapRef:
