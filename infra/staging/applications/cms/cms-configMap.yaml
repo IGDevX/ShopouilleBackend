@@ -4,4 +4,4 @@ metadata:
   name: cms-app-config
   namespace: devops-staging
 data:
-  QUARKUS_MONGODB_CONNECTION_URL: "mongodb://mongo-service:80/shopouille-cms"
+  QUARKUS_MONGODB_CONNECTION_URL: "mongodb://admin:password@mongo-service:27017/shopouille-cms?authSource=shopouille-cms"
