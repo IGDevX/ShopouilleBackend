@@ -1,0 +1,32 @@
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Docker Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Normalize repository name
+        run: |
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "REPO_LOWER=$REPO_LOWER" >> $GITHUB_ENV
+
+      - name: Promote image matching this tag’s commit
+        env:
+          IMAGE: ghcr.io/${{env.REPO_LOWER}}
+          SHA: ${{ github.sha }}
+          TAG: ${{ github.ref_name }}   # e.g. v1.2.3
+        run: |
+          docker pull $IMAGE:$SHA
+          docker tag $IMAGE:$SHA $IMAGE:$TAG
+          docker tag $IMAGE:$SHA $IMAGE:latest
+          docker push $IMAGE:$TAG
+          docker push $IMAGE:latest
