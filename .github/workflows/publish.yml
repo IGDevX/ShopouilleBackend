@@ -4,11 +4,11 @@ on:
   workflow_call:
     inputs:
       dockerfile_path:
-        required: true
+        required: false
         type: string
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -52,5 +52,5 @@ jobs:
           file: ${{ inputs.dockerfile_path || 'Dockerfile' }}
           push: true
           tags: ghcr.io/${{ env.REPO_LOWER }}:${{ github.sha }}
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository }}:latest
+          cache-from: type=registry,ref=ghcr.io/${{ env.REPO_LOWER }}:latest
           cache-to: type=inline
