@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/services/shopouille-catolog" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/services/shopouille-cms" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/services/shopouille-user" vcs="Git" />
+  </component>
+</project>

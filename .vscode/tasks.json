@@ -1,0 +1,25 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Quarkus Catalog Dev",
+      "type": "shell",
+      "command": "./gradlew quarkusDev",
+      "options": {
+        "cwd": "${workspaceFolder}/services/catalog"
+      },
+      "problemMatcher": [],
+      "detail": "Run Quarkus Dev for the catalog microservice with JDK 21"
+    },
+    {
+      "label": "Quarkus CMS Dev",
+      "type": "shell",
+      "command": "./gradlew quarkusDev",
+      "options": {
+        "cwd": "${workspaceFolder}/services/cms"
+      },
+      "problemMatcher": [],
+      "detail": "Run Quarkus Dev for the cms microservice"
+    }
+  ]
+}
