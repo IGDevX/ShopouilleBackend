@@ -42,7 +42,8 @@ jobs:
         run: |
           set -euo pipefail
           repo="${{ github.event.client_payload.repository }}"
-          short="${repo#*-}"
+          repo_name="${repo##*/}"
+          short="${repo_name##*-}"
           echo "STRIPPED_REPOSITORY=${short}" >> "$GITHUB_ENV"
           echo "Stripped repository: ${short}"
 
@@ -63,14 +64,14 @@ jobs:
           echo "Updating ${DEPLOYMENT_FILE} image to ghcr.io/${REPOSITORY}:${TAG}"
 
           python - <<'PY'
-          import os, re, sys, pathlib
+          import os, re, pathlib
           deployment_file = pathlib.Path(os.environ["DEPLOYMENT_FILE"])
           repo = os.environ["REPOSITORY"]
           tag = os.environ["TAG"]
           text = deployment_file.read_text()
           pattern = rf"(image:\s*ghcr\.io/{re.escape(repo)}:)[^\s]+"
           if not re.search(pattern, text):
-              raise SystemExit(f"Image line for ghcr.io/{repo} not found in {deployment_file}")
+              raise SystemExit(f"Image line for ghcr.io/{repo} not found in {str(deployment_file)}")
           text = re.sub(pattern, rf"\1{tag}", text, count=1)
           deployment_file.write_text(text)
           PY
