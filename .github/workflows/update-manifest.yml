@@ -27,9 +27,11 @@ jobs:
               ;;
             staging)
               echo "INFRA=staging" >> "$GITHUB_ENV"
+              echo "skip=false" >> "$GITHUB_OUTPUT"
               ;;
             main)
               echo "INFRA=prod" >> "$GITHUB_ENV"
+              echo "skip=false" >> "$GITHUB_OUTPUT"
               ;;
             *)
               echo "Unknown branch '${branch}'" >&2
@@ -38,6 +40,8 @@ jobs:
           esac
 
       - name: Strip repository name
+        # Extracts the service name from repository (e.g., igdevx/shopouille-catalog -> catalog)
+        # Assumes repository follows the pattern: owner/prefix-service
         if: steps.determine-infra.outputs.skip != 'true'
         run: |
           set -euo pipefail
@@ -63,26 +67,17 @@ jobs:
 
           echo "Updating ${DEPLOYMENT_FILE} image to ghcr.io/${REPOSITORY}:${TAG}"
 
-          python - <<'PY'
-          import os, re, pathlib
-          deployment_file = pathlib.Path(os.environ["DEPLOYMENT_FILE"])
-          repo = os.environ["REPOSITORY"]
-          tag = os.environ["TAG"]
-          text = deployment_file.read_text()
-          pattern = rf"(image:\s*['\"]?ghcr\.io/{re.escape(repo)}:)[^\s'\"]+(['\"]?)"
-          if not re.search(pattern, text):
-              raise SystemExit(f"Image line for ghcr.io/{repo} not found in {deployment_file}")
-          text = re.sub(pattern, rf"\1{tag}\2", text, count=1)
-          deployment_file.write_text(text)
-          PY
+          sed -i "s|image: ghcr.io/${REPOSITORY}:[^[:space:]]*|image: ghcr.io/${REPOSITORY}:${TAG}|" "${DEPLOYMENT_FILE}"
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add "${DEPLOYMENT_FILE}"
 
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-            exit 0
+          if ! git diff --quiet "${DEPLOYMENT_FILE}"; then
+            echo "Manifest updated successfully"
+          else
+            echo "Warning: No changes detected after update" >&2
+            exit 1
           fi
 
           git commit -m "chore: update ${STRIPPED_REPOSITORY} image to ${TAG}"

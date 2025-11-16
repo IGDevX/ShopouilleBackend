@@ -15,6 +15,10 @@ on:
         description: Tag to propagate
         required: true
         type: string
+    secrets:
+      CI_DISPATCH_TOKEN:
+        description: Token with permissions to dispatch events to the target repository
+        required: true
 
 jobs:
   dispatch:
