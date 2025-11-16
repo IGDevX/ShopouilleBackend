@@ -69,16 +69,13 @@ jobs:
 
           sed -i "s|image: ghcr.io/${REPOSITORY}:[^[:space:]]*|image: ghcr.io/${REPOSITORY}:${TAG}|" "${DEPLOYMENT_FILE}"
 
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add "${DEPLOYMENT_FILE}"
-
-          if ! git diff --quiet "${DEPLOYMENT_FILE}"; then
-            echo "Manifest updated successfully"
-          else
+          if git diff --quiet "${DEPLOYMENT_FILE}"; then
             echo "Warning: No changes detected after update" >&2
             exit 1
           fi
 
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "${DEPLOYMENT_FILE}"
           git commit -m "chore: update ${STRIPPED_REPOSITORY} image to ${TAG}"
           git push
