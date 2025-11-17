@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: front
-        image: ghcr.io/igdevx/shopouille:dev-2e8e7c1
+        image: ghcr.io/igdevx/shopouille:dev-02c0b5b
         envFrom:
         - configMapRef:
             name: front-app-config
