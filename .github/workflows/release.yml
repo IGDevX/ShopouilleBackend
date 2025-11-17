@@ -13,11 +13,29 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Determine release type
+        id: tag-type
+        run: |
+          tag="${{ inputs.tag }}"
+          if [[ "${tag}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "final=true" >> "$GITHUB_OUTPUT"
+            echo "Final release tag detected: ${tag}"
+          else
+            echo "final=false" >> "$GITHUB_OUTPUT"
+            echo "Non-final tag '${tag}' detected; skipping GitHub Release creation."
+          fi
+
       - uses: actions/checkout@v4
+        if: steps.tag-type.outputs.final == 'true'
 
       - name: Create GitHub Release
+        if: steps.tag-type.outputs.final == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.tag }}
           name: Release ${{ inputs.tag }}
           generate_release_notes: true
+
+      - name: Confirm skip for non-final tag
+        if: steps.tag-type.outputs.final != 'true'
+        run: echo "Release workflow completed successfully without publishing because the tag is not a final SemVer."

@@ -15,29 +15,24 @@ jobs:
 
       - name: Determine target infrastructure
         id: determine-infra
+        # Decide target infra purely from the tag: rc tags go to staging, final SemVer tags go to prod, others are skipped.
         run: |
           set -euo pipefail
-          branch="${{ github.event.client_payload.branch }}"
-          echo "Received branch: ${branch}"
+          tag="${{ github.event.client_payload.tag }}"
+          echo "Received tag: ${tag}"
 
-          case "${branch}" in
-            dev|develop)
-              echo "skip=true" >> "$GITHUB_OUTPUT"
-              echo "dev branch detected; workflow will stop after this step."
-              ;;
-            staging)
-              echo "INFRA=staging" >> "$GITHUB_ENV"
-              echo "skip=false" >> "$GITHUB_OUTPUT"
-              ;;
-            main)
-              echo "INFRA=prod" >> "$GITHUB_ENV"
-              echo "skip=false" >> "$GITHUB_OUTPUT"
-              ;;
-            *)
-              echo "Unknown branch '${branch}'" >&2
-              exit 1
-              ;;
-          esac
+          if [[ "${tag}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+$ ]]; then
+            echo "INFRA=staging" >> "$GITHUB_ENV"
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "Release candidate detected; updating staging manifests."
+          elif [[ "${tag}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "INFRA=prod" >> "$GITHUB_ENV"
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "Final release detected; updating production manifests."
+          else
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Tag '${tag}' does not match deployable patterns; skipping manifest update."
+          fi
 
       - name: Strip repository name
         # Extracts the service name from repository (e.g., igdevx/shopouille-catalog -> catalog)
