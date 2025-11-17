@@ -16,9 +16,16 @@ spec:
     spec:
       containers:
       - name: cms
-        image: ghcr.io/igdevx/shopouille-cms:0796974f579af61c03a4edef91eb6a5102a35802
+        image: ghcr.io/igdevx/shopouille-cms:fce29db0046eb9749972aaa9a8a64f3ff3b9c32
         envFrom:
         - configMapRef:
             name: cms-app-config
         - secretRef:
             name: cms-db-secret
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
