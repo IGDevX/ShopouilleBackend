@@ -17,6 +17,7 @@ spec:
       containers:
       - name: front
         image: ghcr.io/igdevx/shopouille:dev-02c0b5b
+        ImagePullPolicy: Always
         envFrom:
         - configMapRef:
             name: front-app-config
