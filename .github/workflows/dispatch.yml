@@ -1,0 +1,38 @@
+name: Dispatch Workflow
+
+on:
+  workflow_call:
+    inputs:
+      repository:
+        description: Updated repository
+        required: true
+        type: string
+      branch:
+        description: Updated branch
+        required: true
+        type: string
+      tag:
+        description: Tag to propagate
+        required: true
+        type: string
+    secrets:
+      CI_DISPATCH_TOKEN:
+        description: Token with permissions to dispatch events to the target repository
+        required: true
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger manifest update in main repository
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.CI_DISPATCH_TOKEN }}
+          repository: igdevx/shopouillebackend
+          event-type: manifest-update
+          client-payload: |
+            {
+              "repository": "${{ inputs.repository }}",
+              "branch": "${{ inputs.branch }}",
+              "tag": "${{ inputs.tag }}"
+            }

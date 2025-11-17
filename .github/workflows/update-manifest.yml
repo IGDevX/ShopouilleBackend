@@ -1,0 +1,84 @@
+name: Update Manifest with new tag
+
+on:
+  repository_dispatch:
+    types: [manifest-update]
+
+jobs:
+  update-manifest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Determine target infrastructure
+        id: determine-infra
+        run: |
+          set -euo pipefail
+          branch="${{ github.event.client_payload.branch }}"
+          echo "Received branch: ${branch}"
+
+          case "${branch}" in
+            dev|develop)
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              echo "dev branch detected; workflow will stop after this step."
+              ;;
+            staging)
+              echo "INFRA=staging" >> "$GITHUB_ENV"
+              echo "skip=false" >> "$GITHUB_OUTPUT"
+              ;;
+            main)
+              echo "INFRA=prod" >> "$GITHUB_ENV"
+              echo "skip=false" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "Unknown branch '${branch}'" >&2
+              exit 1
+              ;;
+          esac
+
+      - name: Strip repository name
+        # Extracts the service name from repository (e.g., igdevx/shopouille-catalog -> catalog)
+        # Assumes repository follows the pattern: owner/prefix-service
+        if: steps.determine-infra.outputs.skip != 'true'
+        run: |
+          set -euo pipefail
+          repo="${{ github.event.client_payload.repository }}"
+          repo_name="${repo##*/}"
+          short="${repo_name##*-}"
+          echo "STRIPPED_REPOSITORY=${short}" >> "$GITHUB_ENV"
+          echo "Stripped repository: ${short}"
+
+      - name: Update manifest
+        if: steps.determine-infra.outputs.skip != 'true'
+        run: |
+          set -euo pipefail
+          TAG="${{ github.event.client_payload.tag }}"
+          REPOSITORY="${{ github.event.client_payload.repository }}"
+          DEPLOYMENT_FILE="infra/${{ env.INFRA }}/applications/${{ env.STRIPPED_REPOSITORY }}/${{ env.STRIPPED_REPOSITORY }}-deployment.yaml"
+          export TAG REPOSITORY DEPLOYMENT_FILE
+
+          if [ ! -f "${DEPLOYMENT_FILE}" ]; then
+            echo "Deployment file ${DEPLOYMENT_FILE} not found" >&2
+            exit 1
+          fi
+
+          echo "Updating ${DEPLOYMENT_FILE} image to ghcr.io/${REPOSITORY}:${TAG}"
+
+          sed -i "s|image: ghcr.io/${REPOSITORY}:[^[:space:]]*|image: ghcr.io/${REPOSITORY}:${TAG}|" "${DEPLOYMENT_FILE}"
+
+          if git diff --quiet "${DEPLOYMENT_FILE}"; then
+            echo "Warning: No changes detected after update" >&2
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "${DEPLOYMENT_FILE}"
+          git commit -m "chore: update ${STRIPPED_REPOSITORY} image to ${TAG} in ${INFRA}"
+          if ! git push --set-upstream origin "${branch}"; then
+            echo "Error: git push failed. There may be concurrent updates or conflicts." >&2
+            exit 1
+          fi
