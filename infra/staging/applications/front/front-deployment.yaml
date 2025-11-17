@@ -16,7 +16,14 @@ spec:
     spec:
       containers:
       - name: front
-        image: ghcr.io/igdevx/shopouille:dev-f7146c2
+        image: ghcr.io/igdevx/shopouille:dev-2e8e7c1
         envFrom:
         - configMapRef:
             name: front-app-config
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
