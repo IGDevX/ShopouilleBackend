@@ -16,9 +16,16 @@ spec:
     spec:
       containers:
       - name: catalog
-        image: ghcr.io/igdevx/shopouille-catalog:latest
+        image: ghcr.io/igdevx/shopouille-catalog:0c731fc00c3bf8554a30cd7496b0ec6623d20377
         envFrom:
         - configMapRef:
             name: catalog-app-config
         - secretRef:
             name: catalog-db-secret
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+          requests:
+            cpu: "250m"
+            memory: "128Mi"
