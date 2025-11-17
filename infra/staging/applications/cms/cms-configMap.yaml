@@ -8,4 +8,4 @@ data:
   QUARKUS_MONGODB_HOSTS: "mongo-service"
   QUARKUS_MONGODB_PORT: "27017"
   QUARKUS_MONGODB_DATABASE: "shopouille-cms"
-  QUARKUS_MONGODB_AUTH_SOURCE: "admin"
+  QUARKUS_MONGODB_AUTH_SOURCE: "shopouille-cms"
