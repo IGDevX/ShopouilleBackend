@@ -4,32 +4,15 @@ metadata:
   name: mongo-init-script
 data:
   init-mongo.js: |
-    // Variables d'environnement
-    const appUser = process.env.MONGO_APP_USER || "shopouille";
-    const appPassword = process.env.MONGO_APP_PASSWORD || "password";
-    const dbName = process.env.MONGO_APP_DB || "shopouille-cms";
-
-    // Connexion à la base
-    const db = connect('mongodb://localhost:27017/' + dbName);
-
-    // Crée la collection 'example' si elle n'existe pas
-    try {
-      db.createCollection('example');
-      print("Collection 'example' créée");
-    } catch (e) {
-      print("Collection 'example' existe déjà");
-    }
-
-    // Crée l'utilisateur avec droits readWrite
-    try {
-      db.createUser({
-        user: appUser,
-        pwd: appPassword,
-        roles: [
-          { role: "readWrite", db: dbName }
-        ]
-      });
-      print(`Utilisateur '${appUser}' créé avec droits readWrite sur '${dbName}'`);
-    } catch (e) {
-      print(`Utilisateur '${appUser}' existe déjà`);
-    }
+    db = db.getSiblingDB(process.env.MONGO_INITDB_DATABASE);
+    
+    db.createUser({
+      user: process.env.MONGO_APP_USER,
+      pwd: process.env.MONGO_APP_PASSWORD,
+      roles: [
+        { role: "readWrite", db: process.env.MONGO_INITDB_DATABASE }
+      ]
+    });
+    
+    db.createCollection('example');
+    print("Initialisation terminée");
