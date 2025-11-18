@@ -5,7 +5,4 @@ metadata:
   namespace: devops-staging
 data:
   QUARKUS_ALLOWED_ORIGINS: "http://shopouille.mathiaspuyfages.fr"
-  QUARKUS_MONGODB_HOSTS: "mongo-service"
-  QUARKUS_MONGODB_PORT: "27017"
   QUARKUS_MONGODB_DATABASE: "shopouille-cms"
-  QUARKUS_MONGODB_AUTH_SOURCE: "shopouille-cms"
