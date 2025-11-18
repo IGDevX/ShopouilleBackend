@@ -3,16 +3,28 @@ kind: ConfigMap
 metadata:
   name: mongo-init-script
 data:
-  init-mongo.js: |
-    db = db.getSiblingDB(process.env.MONGO_INITDB_DATABASE);
+  init-mongo.sh: |
+    #!/bin/bash
+    set -e
     
-    db.createUser({
-      user: process.env.MONGO_APP_USER,
-      pwd: process.env.MONGO_APP_PASSWORD,
-      roles: [
-        { role: "readWrite", db: process.env.MONGO_INITDB_DATABASE }
-      ]
-    });
+    echo "Initialisation de la base de données ${MONGO_INITDB_DATABASE}..."
     
-    db.createCollection('example');
-    print("Initialisation terminée");
+    mongosh --authenticationDatabase admin \
+            -u "${MONGO_INITDB_ROOT_USERNAME}" \
+            -p "${MONGO_INITDB_ROOT_PASSWORD}" \
+            --eval "
+              db = db.getSiblingDB('${MONGO_INITDB_DATABASE}');
+              
+              db.createUser({
+                user: '${MONGO_APP_USER}',
+                pwd: '${MONGO_APP_PASSWORD}',
+                roles: [
+                  { role: 'readWrite', db: '${MONGO_INITDB_DATABASE}' }
+                ]
+              });
+              
+              db.createCollection('example');
+              print('Initialisation terminée pour ${MONGO_INITDB_DATABASE}');
+            "
+    
+    echo "Utilisateur ${MONGO_APP_USER} créé avec succès!"
