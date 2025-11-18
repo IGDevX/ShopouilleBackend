@@ -7,10 +7,6 @@ on:
         description: Updated repository
         required: true
         type: string
-      branch:
-        description: Updated branch
-        required: true
-        type: string
       tag:
         description: Tag to propagate
         required: true
@@ -24,6 +20,11 @@ jobs:
   dispatch:
     runs-on: ubuntu-latest
     steps:
+      - name: Set repository name to lowercase
+        run: |
+          repo=$(echo "${{ inputs.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "REPOSITORY=$repo" >> $GITHUB_OUTPUT
+
       - name: Trigger manifest update in main repository
         uses: peter-evans/repository-dispatch@v3
         with:
@@ -32,7 +33,6 @@ jobs:
           event-type: manifest-update
           client-payload: |
             {
-              "repository": "${{ inputs.repository }}",
-              "branch": "${{ inputs.branch }}",
+              "repository": "${{ env.REPOSITORY }}",
               "tag": "${{ inputs.tag }}"
             }
