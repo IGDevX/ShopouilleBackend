@@ -23,7 +23,7 @@ jobs:
       - name: Set repository name to lowercase
         run: |
           repo=$(echo "${{ inputs.repository }}" | tr '[:upper:]' '[:lower:]')
-          echo "REPOSITORY=$repo" >> $GITHUB_OUTPUT
+          echo "REPOSITORY=$repo" >> $GITHUB_ENV
 
       - name: Trigger manifest update in main repository
         uses: peter-evans/repository-dispatch@v3
