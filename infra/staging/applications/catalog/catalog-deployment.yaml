@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: catalog
-        image: ghcr.io/igdevx/shopouille-catalog:latest
+        image: ghcr.io/igdevx/shopouille-catalog:v0.0.1-rc.1
         envFrom:
         - configMapRef:
             name: catalog-app-config
