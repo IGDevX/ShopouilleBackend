@@ -7,24 +7,34 @@ data:
     #!/bin/bash
     set -e
     
-    echo "Initialisation de la base de données ${MONGO_INITDB_DATABASE}..."
+    echo "=== Début de l'initialisation de MongoDB ==="
+    echo "Base de données: ${MONGO_INITDB_DATABASE}"
+    echo "Utilisateur app: ${MONGO_APP_USER}"
     
-    mongosh --authenticationDatabase admin \
-            -u "${MONGO_INITDB_ROOT_USERNAME}" \
-            -p "${MONGO_INITDB_ROOT_PASSWORD}" \
-            --eval "
-              db = db.getSiblingDB('${MONGO_INITDB_DATABASE}');
-              
-              db.createUser({
-                user: '${MONGO_APP_USER}',
-                pwd: '${MONGO_APP_PASSWORD}',
-                roles: [
-                  { role: 'readWrite', db: '${MONGO_INITDB_DATABASE}' }
-                ]
-              });
-              
-              db.createCollection('example');
-              print('Initialisation terminée pour ${MONGO_INITDB_DATABASE}');
-            "
+    # Attendre que MongoDB soit prêt
+    until mongosh --host localhost --eval "print('MongoDB is ready')" > /dev/null 2>&1; do
+      echo "En attente de MongoDB..."
+      sleep 2
+    done
+    
+    # Créer l'utilisateur applicatif
+    mongosh <<EOF
+    use admin
+    db.auth('${MONGO_INITDB_ROOT_USERNAME}', '${MONGO_INITDB_ROOT_PASSWORD}')
+    
+    use ${MONGO_INITDB_DATABASE}
+    
+    db.createUser({
+      user: '${MONGO_APP_USER}',
+      pwd: '${MONGO_APP_PASSWORD}',
+      roles: [
+        { role: 'readWrite', db: '${MONGO_INITDB_DATABASE}' }
+      ]
+    })
+    
+    db.createCollection('example')
+    
+    print('=== Initialisation terminée ===')
+    EOF
     
     echo "Utilisateur ${MONGO_APP_USER} créé avec succès!"
