@@ -40,10 +40,19 @@ spec:
                   key: MONGO_INITDB_ROOT_PASSWORD
             - name: MONGO_INITDB_DATABASE
               value: shopouille-cms
+            - name: MONGO_APP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: MONGO_APP_USER
+            - name: MONGO_APP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: MONGO_APP_PASSWORD
           volumeMounts:
             - name: init-script
-              mountPath: /docker-entrypoint-initdb.d/init-mongo.sh
-              subPath: init-mongo.sh
+              mountPath: /docker-entrypoint-initdb.d
           livenessProbe:
             exec:
               command:
@@ -56,3 +65,4 @@ spec:
         - name: init-script
           configMap:
             name: mongo-init-script
+            defaultMode: 0755
