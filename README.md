@@ -1,4 +1,4 @@
-<|start_of_focus|># Shopouille Backend
+# Shopouille Backend
 
 This monorepo hosts the Shopouille backend services, shared libraries, and infrastructure tooling.
 
