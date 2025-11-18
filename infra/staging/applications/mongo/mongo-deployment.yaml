@@ -42,8 +42,8 @@ spec:
               value: shopouille-cms
           volumeMounts:
             - name: init-script
-              mountPath: /docker-entrypoint-initdb.d/init-mongo.js
-              subPath: init-mongo.js
+              mountPath: /docker-entrypoint-initdb.d/init-mongo.sh
+              subPath: init-mongo.sh
           livenessProbe:
             exec:
               command:
