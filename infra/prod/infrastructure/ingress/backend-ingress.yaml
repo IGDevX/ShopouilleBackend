@@ -1,25 +1,51 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: catalog-strip
+  namespace: prod
+spec:
+  stripPrefix:
+    prefixes:
+      - /catalog
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: cms-strip
+  namespace: prod
+spec:
+  stripPrefix:
+    prefixes:
+      - /cms
+
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: backend-ingress
+  name: multi-app-ingress
   namespace: prod
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: |
+      prod-catalog-strip@kubernetescrd,
+      prod-cms-strip@kubernetescrd
 spec:
   ingressClassName: traefik
   rules:
-  - host: back-shopouille-prod.mathiaspuyfages.fr
-    http:
-      paths:
-      - backend:
-          service:
-            name: catalog-service
-            port:
-              number: 80
-        path: /catalog
-        pathType: Prefix
-      - backend:
-          service:
-            name: cms-service
-            port:
-              number: 80
-        path: /cms
-        pathType: Prefix
+    - host: back-shopouille-prod.mathiaspuyfages.fr
+      http:
+        paths:
+          - path: /catalog
+            pathType: Prefix
+            backend:
+              service:
+                name: catalog-service
+                port:
+                  number: 80
+          - path: /cms
+            pathType: Prefix
+            backend:
+              service:
+                name: cms-service
+                port:
+                  number: 80

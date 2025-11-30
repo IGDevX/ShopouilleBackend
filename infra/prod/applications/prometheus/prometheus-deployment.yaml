@@ -15,7 +15,6 @@ spec:
       labels:
         app: prometheus-server
     spec:
-      serviceAccountName: prometheus
       imagePullSecrets:
       - name: docker-hub
       containers:
