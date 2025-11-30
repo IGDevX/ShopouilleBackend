@@ -11,7 +11,6 @@ spec:
       app: catalog
   template:
     metadata:
-      name: catalog
       labels:
         app: catalog
     spec:
