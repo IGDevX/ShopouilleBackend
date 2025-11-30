@@ -39,23 +39,19 @@ data:
       tsdb_shipper:
         active_index_directory: /tmp/loki/index
         cache_location: /tmp/loki/index_cache
-        resync_interval: 5m
-        shared_store: filesystem
-        max_concurrent: 8
-
+        resync_interval: 5m        # Réduit le nombre de scans (moins de watchers)
       filesystem:
         directory: /tmp/loki/chunks
 
     compactor:
       working_directory: /tmp/loki/compactor
-      compaction_interval: 10m 
+      compaction_interval: 10m     # Moins de compactions = moins de FD
       retention_enabled: true
 
     ingester:
-      chunk_idle_period: 15m 
-      max_chunk_age: 1h           
+      chunk_idle_period: 15m        # Moins de rotations
+      max_chunk_age: 1h             # Réduit les ouvertures de fichiers
       chunk_target_size: 1536000
-      max_transfer_retries: 0
 
     pattern_ingester:
       enabled: true
