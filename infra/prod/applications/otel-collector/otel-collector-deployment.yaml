@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-deployment
+  labels:
+    app: otel
+  namespace: prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel
+  template:
+    metadata:
+      labels:
+        app: otel
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: otel
+        image: otel/opentelemetry-collector-contrib:0.127.0
+        args: ["--config=/etc/collector/config.yml"]
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+            ephemeral-storage: "500Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+            ephemeral-storage: "1Gi"
+        volumeMounts:
+        - name: config
+          mountPath: /etc/collector/config.yml
+          subPath: config.yml
+      volumes:
+      - name: config
+        configMap:
+          name: collector-config

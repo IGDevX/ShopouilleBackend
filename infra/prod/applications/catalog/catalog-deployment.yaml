@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: catalog-rollout
+  namespace: prod
+spec:
+  replicas: 3
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: catalog
+  template:
+    metadata:
+      name: catalog
+      labels:
+        app: catalog
+    spec:
+      containers:
+      - name: catalog
+        image: ghcr.io/igdevx/shopouille-catalog:4c2222544360e92684e0105c73ddca17ae765fe2
+        envFrom:
+        - configMapRef:
+            name: catalog-app-config
+        - secretRef:
+            name: catalog-db-secret
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+          requests:
+            cpu: "250m"
+            memory: "128Mi"
+  strategy:
+    canary:
+      steps:
+      - setWeight: 20
+      - pause: {duration: 30s}
+      - setWeight: 40
+      - pause: {duration: 30s}
+      - setWeight: 60
+      - pause: {duration: 30s}
+      - setWeight: 80
+      - pause: {duration: 30s}

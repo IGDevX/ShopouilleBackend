@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: cms-rollout
+  namespace: prod
+spec:
+  replicas: 2
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: cms
+  template:
+    metadata:
+      name: cms
+      labels:
+        app: cms
+    spec:
+      containers:
+      - name: cms
+        image: ghcr.io/igdevx/shopouille-cms:8bace50fad4de298bbe6f7817a73d9653dca5e7f
+        envFrom:
+        - configMapRef:
+            name: cms-app-config
+        - secretRef:
+            name: cms-db-secret
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+  strategy:
+    canary:
+      steps:
+      - setWeight: 20
+      - pause: {duration: 30s}
+      - setWeight: 40
+      - pause: {duration: 30s}
+      - setWeight: 60
+      - pause: {duration: 30s}
+      - setWeight: 80
+      - pause: {duration: 30s}

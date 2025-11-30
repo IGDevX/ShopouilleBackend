@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cms-app-config
+  namespace: prod
+data:
+  QUARKUS_ALLOWED_ORIGINS: "http://shopouille.mathiaspuyfages.fr"
+  QUARKUS_MONGODB_DATABASE: "shopouille-cms"
