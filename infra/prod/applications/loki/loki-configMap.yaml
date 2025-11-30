@@ -10,6 +10,9 @@ data:
     limits_config:
       allow_structured_metadata: true
       volume_enabled: true
+      ingestion_rate_mb: 8
+      ingestion_burst_size_mb: 16
+      max_concurrent_tail_requests: 10
 
     server:
       http_listen_port: 3100
@@ -36,8 +39,23 @@ data:
       tsdb_shipper:
         active_index_directory: /tmp/loki/index
         cache_location: /tmp/loki/index_cache
+        resync_interval: 5m
+        shared_store: filesystem
+        max_concurrent: 8
+
       filesystem:
         directory: /tmp/loki/chunks
+
+    compactor:
+      working_directory: /tmp/loki/compactor
+      compaction_interval: 10m 
+      retention_enabled: true
+
+    ingester:
+      chunk_idle_period: 15m 
+      max_chunk_age: 1h           
+      chunk_target_size: 1536000
+      max_transfer_retries: 0
 
     pattern_ingester:
       enabled: true
