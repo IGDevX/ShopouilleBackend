@@ -1,9 +1,12 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
+metadata:
+  name: backend-ingress
+  namespace: prod
 spec:
   ingressClassName: traefik
   rules:
-  - host: back-shopouille.mathiaspuyfages.fr
+  - host: back-shopouille-prod.mathiaspuyfages.fr
     http:
       paths:
       - backend:
