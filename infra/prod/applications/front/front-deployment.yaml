@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: front
-        image: ghcr.io/igdevx/shopouille:dev-33556ff
+        image: ghcr.io/igdevx/shopouille:main-8d22d42
         imagePullPolicy: Always
         envFrom:
         - configMapRef:
