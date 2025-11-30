@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: front-ingress
-  namespace: devops-staging
+  namespace: prod
 spec:
   rules:
   - host: shopouille-prod.mathiaspuyfages.fr
