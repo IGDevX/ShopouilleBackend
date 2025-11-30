@@ -22,7 +22,7 @@ spec:
       - name: docker-hub
       containers:
       - name: grafana
-        image: grafana/grafana:12.2
+        image: grafana/grafana:12.1
         imagePullPolicy: IfNotPresent
         ports:
         - name: grafana
