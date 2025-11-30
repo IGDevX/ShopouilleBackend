@@ -19,9 +19,6 @@ spec:
       - name: front
         image: ghcr.io/igdevx/shopouille:main-8d22d42
         imagePullPolicy: Always
-        envFrom:
-        - configMapRef:
-            name: front-app-config
         resources:
           requests:
             cpu: "100m"
