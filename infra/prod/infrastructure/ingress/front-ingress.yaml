@@ -5,7 +5,7 @@ metadata:
   namespace: devops-staging
 spec:
   rules:
-  - host: shopouille.mathiaspuyfages.fr
+  - host: shopouille-prod.mathiaspuyfages.fr
     http:
       paths:
       - path: /
