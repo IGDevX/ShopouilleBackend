@@ -113,7 +113,6 @@ func (api *GatlingAPI) runGatling(simulationClass string) error {
 	api.status.ActiveUsers = 0
 	api.mutex.Unlock()
 
-	// Mettre à jour les métriques Prometheus
 	api.simulationRunning.Set(1)
 	api.activeUsersGauge.Set(0)
 
@@ -124,7 +123,6 @@ func (api *GatlingAPI) runGatling(simulationClass string) error {
 		api.status.ReportPath = api.findLatestReport()
 		api.mutex.Unlock()
 
-		// Réinitialiser les métriques Prometheus
 		api.simulationRunning.Set(0)
 		api.activeUsersGauge.Set(0)
 	}()
@@ -135,7 +133,6 @@ func (api *GatlingAPI) runGatling(simulationClass string) error {
 	)
 	cmd.Dir = api.projectDir
 
-	// Capture output to parse active users
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return err
@@ -146,7 +143,6 @@ func (api *GatlingAPI) runGatling(simulationClass string) error {
 		return err
 	}
 
-	// Read output in real-time to update active users
 	go func() {
 		buf := make([]byte, 1024)
 		for {
@@ -158,7 +154,6 @@ func (api *GatlingAPI) runGatling(simulationClass string) error {
 					api.mutex.Lock()
 					api.status.ActiveUsers = activeUsers
 					api.mutex.Unlock()
-					// Mettre à jour la métrique Prometheus
 					api.activeUsersGauge.Set(float64(activeUsers))
 				}
 				fmt.Print(output)
@@ -244,12 +239,10 @@ func (api *GatlingAPI) handleGetReport(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Serve the entire report directory
 	reportDir := filepath.Dir(reportPath)
 	requestedFile := r.URL.Query().Get("file")
 
 	if requestedFile == "" {
-		// Return report info
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]string{
 			"reportPath": reportPath,
@@ -258,10 +251,8 @@ func (api *GatlingAPI) handleGetReport(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Serve the requested file
 	filePath := filepath.Join(reportDir, filepath.Clean(requestedFile))
 
-	// Security check: ensure file is within report directory
 	if !filepath.HasPrefix(filePath, reportDir) {
 		http.Error(w, "Invalid file path", http.StatusForbidden)
 		return
@@ -274,7 +265,6 @@ func (api *GatlingAPI) handleGetReport(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	// Set appropriate content type
 	ext := filepath.Ext(filePath)
 	contentType := "text/html"
 	switch ext {
@@ -311,7 +301,7 @@ func (api *GatlingAPI) handleMetrics(w http.ResponseWriter, r *http.Request) {
 func main() {
 	projectDir := os.Getenv("PROJECT_DIR")
 	if projectDir == "" {
-		projectDir = "/home/puyfages/Data/ProjetScolaire/DevOps/ShopouilleBackend/test/load-test"
+		projectDir = "/app/load-test"
 	}
 	api := NewGatlingAPI(projectDir)
 
@@ -320,7 +310,6 @@ func main() {
 	http.HandleFunc("/report", api.handleGetReport)
 	http.HandleFunc("/metrics/active-users", api.handleMetrics)
 
-	// Endpoint Prometheus pour les métriques
 	http.Handle("/metrics", promhttp.Handler())
 
 	port := ":8080"
