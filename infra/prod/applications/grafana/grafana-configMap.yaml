@@ -7,6 +7,12 @@ data:
   prometheus.yaml: |-
     {
         "apiVersion": 1,
+        "deleteDatasources": [
+            {
+                "name": "Loki",
+                "orgId": 1
+            }
+        ],
         "datasources": [
             {
                 "access": "proxy",
@@ -15,16 +21,21 @@ data:
                 "orgId": 1,
                 "type": "prometheus",
                 "url": "http://prometheus-service.prod.svc:9090",
-                "version": 1
+                "version": 1,
+                "uid": "prometheus-prod"
             },
             {
                 "access": "proxy",
                 "editable": true,
-                "name": "Loki",
+                "name": "Loki-Prod",
                 "orgId": 1,
                 "type": "loki",
                 "url": "http://loki.prod.svc.cluster.local:3100",
-                "version": 1
+                "version": 1,
+                "uid": "loki-prod",
+                "jsonData": {
+                    "maxLines": 1000
+                }
             }
         ]
     }
