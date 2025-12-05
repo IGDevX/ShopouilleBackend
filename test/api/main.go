@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"sync"
 	"time"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -66,14 +67,23 @@ func NewGatlingAPI(projectDir string) *GatlingAPI {
 }
 
 func (api *GatlingAPI) parseActiveUsers(output string) int {
-	re := regexp.MustCompile(`active:\s+(\d+)`)
-	matches := re.FindStringSubmatch(output)
-	if len(matches) > 1 {
-		var users int
-		fmt.Sscanf(matches[1], "%d", &users)
-		return users
+	// Plusieurs patterns pour capturer les utilisateurs actifs
+	patterns := []string{
+		`active:\s+(\d+)`,         // Pattern: active: 123
+		`(\d+)\s+active`,          // Pattern: 123 active
+		`users\s+active:\s+(\d+)`, // Pattern: users active: 123
 	}
-	return 0
+
+	for _, pattern := range patterns {
+		re := regexp.MustCompile(pattern)
+		matches := re.FindStringSubmatch(output)
+		if len(matches) > 1 {
+			var users int
+			fmt.Sscanf(matches[1], "%d", &users)
+			return users
+		}
+	}
+	return -1 // Retourne -1 si aucun pattern ne correspond (pour ne pas réinitialiser à 0)
 }
 
 func (api *GatlingAPI) findLatestReport() string {
@@ -105,6 +115,8 @@ func (api *GatlingAPI) findLatestReport() string {
 }
 
 func (api *GatlingAPI) runGatling(simulationClass string) error {
+	log.Printf("[GATLING] Starting simulation: %s", simulationClass)
+
 	api.mutex.Lock()
 	api.status.IsRunning = true
 	api.status.SimulationClass = simulationClass
@@ -116,14 +128,17 @@ func (api *GatlingAPI) runGatling(simulationClass string) error {
 	api.activeUsersGauge.Set(0)
 
 	defer func() {
+		log.Printf("[GATLING] Simulation completed")
 		api.mutex.Lock()
 		api.status.IsRunning = false
 		api.status.ActiveUsers = 0
-		api.status.ReportPath = api.findLatestReport()
+		reportPath := api.findLatestReport()
+		api.status.ReportPath = reportPath
 		api.mutex.Unlock()
 
 		api.simulationRunning.Set(0)
 		api.activeUsersGauge.Set(0)
+		log.Printf("[GATLING] Report available at: %s", reportPath)
 	}()
 
 	cmd := exec.Command(
@@ -148,16 +163,22 @@ func (api *GatlingAPI) runGatling(simulationClass string) error {
 			n, err := stdout.Read(buf)
 			if n > 0 {
 				output := string(buf[:n])
+				// Écrire directement sur stdout pour que Docker capture les logs
+				log.Print(output)
+
 				activeUsers := api.parseActiveUsers(output)
-				if activeUsers > 0 {
+				if activeUsers >= 0 {
 					api.mutex.Lock()
 					api.status.ActiveUsers = activeUsers
 					api.mutex.Unlock()
 					api.activeUsersGauge.Set(float64(activeUsers))
+					log.Printf("[GATLING] Active users: %d", activeUsers)
 				}
-				fmt.Print(output)
 			}
 			if err != nil {
+				if err != io.EOF {
+					log.Printf("Error reading stdout: %v", err)
+				}
 				break
 			}
 		}
