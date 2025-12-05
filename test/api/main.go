@@ -193,25 +193,13 @@ func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		if origin == "" {
 			origin = "*"
 		}
-
+		
 		w.Header().Set("Access-Control-Allow-Origin", origin)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, X-Grafana-Action, X-Grafana-Device-Id")
 		w.Header().Set("Access-Control-Expose-Headers", "*")
 		w.Header().Set("Access-Control-Max-Age", "3600")
-
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusNoContent)
-			return
-		}
-
-		next(w, r)
-	}
-}
-
-// optionsHandler handles OPTIONS preflight requests (CORS headers added by Nginx Ingress)
-func optionsHandler(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+		
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)
 			return
@@ -344,11 +332,11 @@ func main() {
 	}
 	api := NewGatlingAPI(projectDir)
 
-	// CORS headers are added by Nginx Ingress, we just handle OPTIONS preflight
-	http.HandleFunc("/status", optionsHandler(api.handleStatus))
-	http.HandleFunc("/start", optionsHandler(api.handleStartSimulation))
-	http.HandleFunc("/report", optionsHandler(api.handleGetReport))
-	http.HandleFunc("/metrics/active-users", optionsHandler(api.handleMetrics))
+	// CORS headers including Grafana-specific headers
+	http.HandleFunc("/status", corsMiddleware(api.handleStatus))
+	http.HandleFunc("/start", corsMiddleware(api.handleStartSimulation))
+	http.HandleFunc("/report", corsMiddleware(api.handleGetReport))
+	http.HandleFunc("/metrics/active-users", corsMiddleware(api.handleMetrics))
 
 	http.Handle("/metrics", promhttp.Handler())
 
