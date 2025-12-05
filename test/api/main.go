@@ -209,6 +209,17 @@ func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+// optionsHandler handles OPTIONS preflight requests (CORS headers added by Nginx Ingress)
+func optionsHandler(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		next(w, r)
+	}
+}
+
 func (api *GatlingAPI) handleStatus(w http.ResponseWriter, r *http.Request) {
 	api.mutex.RLock()
 	status := api.status
@@ -333,11 +344,11 @@ func main() {
 	}
 	api := NewGatlingAPI(projectDir)
 
-	// CORS is handled by Nginx Ingress, not by the application
-	http.HandleFunc("/status", api.handleStatus)
-	http.HandleFunc("/start", api.handleStartSimulation)
-	http.HandleFunc("/report", api.handleGetReport)
-	http.HandleFunc("/metrics/active-users", api.handleMetrics)
+	// CORS headers are added by Nginx Ingress, we just handle OPTIONS preflight
+	http.HandleFunc("/status", optionsHandler(api.handleStatus))
+	http.HandleFunc("/start", optionsHandler(api.handleStartSimulation))
+	http.HandleFunc("/report", optionsHandler(api.handleGetReport))
+	http.HandleFunc("/metrics/active-users", optionsHandler(api.handleMetrics))
 
 	http.Handle("/metrics", promhttp.Handler())
 
