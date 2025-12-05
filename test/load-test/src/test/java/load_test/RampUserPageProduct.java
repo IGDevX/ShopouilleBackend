@@ -11,7 +11,7 @@ import java.util.Random;
  * The goal of this test is to simulate a fix number of users browser random product pages to check the performance of the product listing endpoint. 
  * Especially focusing on P95 response time.
  */
-public class UserPageProduct extends Simulation {
+public class RampUserPageProduct extends Simulation {
   private static final HttpProtocolBuilder httpProtocol = http.baseUrl("http://catalog-test.mathiaspuyfages.fr")
       .acceptHeader("application/json")
       .userAgentHeader(
