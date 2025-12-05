@@ -17,7 +17,7 @@ spec:
       automountServiceAccountToken: false
       containers:
       - name: load-test-api
-        image: ghcr.io/igdevx/gatling-api:dev-7307076
+        image: ghcr.io/igdevx/gatling-api:dev-8b3af9f
         imagePullPolicy: IfNotPresent
         envFrom:
         - configMapRef:
