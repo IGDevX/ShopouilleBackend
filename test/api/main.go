@@ -333,10 +333,11 @@ func main() {
 	}
 	api := NewGatlingAPI(projectDir)
 
-	http.HandleFunc("/status", corsMiddleware(api.handleStatus))
-	http.HandleFunc("/start", corsMiddleware(api.handleStartSimulation))
-	http.HandleFunc("/report", corsMiddleware(api.handleGetReport))
-	http.HandleFunc("/metrics/active-users", corsMiddleware(api.handleMetrics))
+	// CORS is handled by Nginx Ingress, not by the application
+	http.HandleFunc("/status", api.handleStatus)
+	http.HandleFunc("/start", api.handleStartSimulation)
+	http.HandleFunc("/report", api.handleGetReport)
+	http.HandleFunc("/metrics/active-users", api.handleMetrics)
 
 	http.Handle("/metrics", promhttp.Handler())
 
