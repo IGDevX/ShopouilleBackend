@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: catalog-app-config
+  namespace: test
+data:
+  QUARKUS_DATASOURCE_JDBC_URL: "jdbc:postgresql://relationnel-test-postgresql:5432/db_shopouille_catalog_test"
+  QUARKUS_OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
+  QUARKUS_DATA_SEEDER_ENABLED: "true"

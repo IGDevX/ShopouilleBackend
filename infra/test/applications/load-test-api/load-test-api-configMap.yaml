@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: load-test-api-config
+  namespace: test
+data:
+  PROJECT_DIR: "/app/load-test"

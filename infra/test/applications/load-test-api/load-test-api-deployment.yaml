@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-test-api-deployment
+  namespace: test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: load-test-api
+  template:
+    metadata:
+      name: load-test-api
+      labels:
+        app: load-test-api
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: load-test-api
+        image: ghcr.io/igdevx/gatling-api:dev-7307076
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: load-test-api-config
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /status
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /status
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
+        resources:
+          limits:
+            cpu: "1000m"
+            memory: "1Gi"
+            ephemeral-storage: "512Mi"
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+            ephemeral-storage: "128Mi"

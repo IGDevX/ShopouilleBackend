@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-deployment
+  namespace: test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catalog
+  template:
+    metadata:
+      name: catalog
+      labels:
+        app: catalog
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: catalog
+        image: ghcr.io/igdevx/shopouille-catalog:9cfdbe8d1125821b8f2ad7d1c0d85e9db49a8263
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: catalog-app-config
+        - secretRef:
+            name: catalog-db-secret
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "1Gi"
+            ephemeral-storage: "1Gi"
+          requests:
+            cpu: "250m"
+            memory: "512Mi"
+            ephemeral-storage: "512Mi"
