@@ -187,9 +187,23 @@ func (api *GatlingAPI) runGatling(simulationClass string) error {
 	return cmd.Wait()
 }
 
-func (api *GatlingAPI) handleStatus(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+		w.Header().Set("Access-Control-Max-Age", "3600")
 
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		next(w, r)
+	}
+}
+
+func (api *GatlingAPI) handleStatus(w http.ResponseWriter, r *http.Request) {
 	api.mutex.RLock()
 	status := api.status
 	api.mutex.RUnlock()
@@ -199,17 +213,6 @@ func (api *GatlingAPI) handleStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *GatlingAPI) handleStartSimulation(w http.ResponseWriter, r *http.Request) {
-	// CORS headers
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
-	// Handle preflight OPTIONS request
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -309,7 +312,6 @@ func (api *GatlingAPI) handleMetrics(w http.ResponseWriter, r *http.Request) {
 	api.mutex.RUnlock()
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*") // Pour Grafana
 
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"timestamp":   time.Now().Unix(),
@@ -325,10 +327,10 @@ func main() {
 	}
 	api := NewGatlingAPI(projectDir)
 
-	http.HandleFunc("/status", api.handleStatus)
-	http.HandleFunc("/start", api.handleStartSimulation)
-	http.HandleFunc("/report", api.handleGetReport)
-	http.HandleFunc("/metrics/active-users", api.handleMetrics)
+	http.HandleFunc("/status", corsMiddleware(api.handleStatus))
+	http.HandleFunc("/start", corsMiddleware(api.handleStartSimulation))
+	http.HandleFunc("/report", corsMiddleware(api.handleGetReport))
+	http.HandleFunc("/metrics/active-users", corsMiddleware(api.handleMetrics))
 
 	http.Handle("/metrics", promhttp.Handler())
 
