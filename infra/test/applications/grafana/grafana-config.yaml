@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+  namespace: test
+data:
+  grafana.ini: |
+    [server]
+    # Custom response headers
+    [server.custom_response_headers]
+    Access-Control-Allow-Origin = *
+    Access-Control-Allow-Methods = GET, POST, PUT, DELETE, OPTIONS
+    Access-Control-Allow-Headers = Accept, Content-Type, Content-Length, Accept-Encoding, Authorization
+    Access-Control-Expose-Headers = *

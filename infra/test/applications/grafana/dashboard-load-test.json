@@ -1,0 +1,354 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "code": {
+          "language": "html",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<div style=\"display: flex; align-items: center; justify-content: center; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px;\">\n  <div style=\"text-align: center;\">\n    <h2 style=\"color: white; margin-bottom: 15px;\">Gatling Load Test</h2>\n    <p style=\"color: rgba(255,255,255,0.9); margin-bottom: 20px;\">Choose your test scenario</p>\n    <div style=\"display: flex; gap: 15px; justify-content: center; margin-bottom: 15px;\">\n      <button id=\"burstBtn\" onclick=\"launchTest('burst')\" style=\"background: #4CAF50; color: white; border: none; padding: 15px 30px; font-size: 14px; border-radius: 5px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);\">\n        Burst Test<br><small style=\"font-weight: normal;\">(1000 users / 5 min)</small>\n      </button>\n      <button id=\"rampBtn\" onclick=\"launchTest('ramp')\" style=\"background: #2196F3; color: white; border: none; padding: 15px 30px; font-size: 14px; border-radius: 5px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3);\">\n        Ramp Test<br><small style=\"font-weight: normal;\">(Progressive load / 30 min)</small>\n      </button>\n    </div>\n    <div id=\"status\" style=\"color: white; margin-top: 10px; min-height: 20px; font-size: 14px;\"></div>\n    <div id=\"timer\" style=\"color: rgba(255,255,255,0.8); margin-top: 5px; font-size: 12px;\"></div>\n  </div>\n</div>\n<script>\nlet countdown = null;\n\nfunction formatTime(seconds) {\n  const mins = Math.floor(seconds / 60);\n  const secs = seconds % 60;\n  return mins + ':' + (secs < 10 ? '0' : '') + secs;\n}\n\nfunction disableButtons(duration) {\n  const burstBtn = document.getElementById('burstBtn');\n  const rampBtn = document.getElementById('rampBtn');\n  const timer = document.getElementById('timer');\n  \n  burstBtn.disabled = true;\n  rampBtn.disabled = true;\n  burstBtn.style.background = '#ccc';\n  rampBtn.style.background = '#ccc';\n  burstBtn.style.cursor = 'not-allowed';\n  rampBtn.style.cursor = 'not-allowed';\n  \n  let remaining = duration;\n  timer.textContent = 'Test in progress - Next test available in: ' + formatTime(remaining);\n  \n  if (countdown) clearInterval(countdown);\n  countdown = setInterval(() => {\n    remaining--;\n    if (remaining <= 0) {\n      clearInterval(countdown);\n      burstBtn.disabled = false;\n      rampBtn.disabled = false;\n      burstBtn.style.background = '#4CAF50';\n      rampBtn.style.background = '#2196F3';\n      burstBtn.style.cursor = 'pointer';\n      rampBtn.style.cursor = 'pointer';\n      timer.textContent = '';\n    } else {\n      timer.textContent = 'Test in progress - Next test available in: ' + formatTime(remaining);\n    }\n  }, 1000);\n}\n\nfunction launchTest(type) {\n  const status = document.getElementById('status');\n  const simulationClass = type === 'burst' ? 'load_test.BurstUserNavigation' : 'load_test.RampUserPageProduct';\n  const duration = type === 'burst' ? 360 : 2100; // 6 min ou 35 min en secondes\n  const testName = type === 'burst' ? 'Burst Test' : 'Ramp Test';\n  \n  status.textContent = 'Launching ' + testName + '...';\n  disableButtons(duration);\n  \n  fetch('http://load-test-api-do.mathiaspuyfages.fr/start', {\n    method: 'POST',\n    headers: {'Content-Type': 'application/json'},\n    body: JSON.stringify({simulationClass: simulationClass})\n  })\n  .then(r => {\n    if (r.status === 409) {\n      throw new Error('Une simulation est déjà en cours');\n    }\n    return r.json();\n  })\n  .then(d => {\n    status.textContent = testName + ' started: ' + d.message;\n  })\n  .catch(e => {\n    status.textContent = 'Error: ' + e.message;\n    if (countdown) clearInterval(countdown);\n    const burstBtn = document.getElementById('burstBtn');\n    const rampBtn = document.getElementById('rampBtn');\n    const timer = document.getElementById('timer');\n    burstBtn.disabled = false;\n    rampBtn.disabled = false;\n    burstBtn.style.background = '#4CAF50';\n    rampBtn.style.background = '#2196F3';\n    burstBtn.style.cursor = 'pointer';\n    rampBtn.style.cursor = 'pointer';\n    timer.textContent = '';\n  });\n}\n</script>",
+        "mode": "html"
+      },
+      "pluginVersion": "12.2.1",
+      "title": "Load Test Control",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "line+area"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "semi-dark-red",
+                "value": 200
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95,sum by (le) (rate(http_server_requests_milliseconds_bucket{exported_job=\"catalog\"}[$__rate_interval])))",
+          "legendFormat": "P95",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "P95 Response Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "process_cpu_usage{exported_job=\"catalog\"}",
+          "legendFormat": "{{exported_job}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "CPU Usage",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Active Users",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "gatling_active_users{}",
+          "interval": "",
+          "legendFormat": "Active Users",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Gatling Active Users",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 42,
+  "tags": ["load-test", "gatling"],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Load Test Dashboard",
+  "uid": "load-test-dashboard",
+  "version": 1
+}

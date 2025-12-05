@@ -20,9 +20,48 @@ spec:
       - name: grafana
         image: grafana/grafana:12.2
         imagePullPolicy: IfNotPresent
+        env:
+        - name: GF_SECURITY_ALLOW_EMBEDDING
+          value: "true"
+        - name: GF_PANELS_DISABLE_SANITIZE_HTML
+          value: "true"
+        - name: GF_AUTH_ANONYMOUS_ENABLED
+          value: "true"
+        - name: GF_SERVER_CUSTOM_RESPONSE_HEADERS_ACCESS_CONTROL_ALLOW_ORIGIN
+          value: "*"
+        - name: GF_SERVER_CUSTOM_RESPONSE_HEADERS_ACCESS_CONTROL_ALLOW_METHODS
+          value: "GET, POST, PUT, DELETE, OPTIONS"
+        - name: GF_SERVER_CUSTOM_RESPONSE_HEADERS_ACCESS_CONTROL_ALLOW_HEADERS
+          value: "Accept, Content-Type, Content-Length, Accept-Encoding, Authorization"
         ports:
         - name: grafana
           containerPort: 3000
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
+        volumeMounts:
+        - name: grafana-datasources
+          mountPath: /etc/grafana/provisioning/datasources
+          readOnly: true
+        - name: grafana-dashboard-provider
+          mountPath: /etc/grafana/provisioning/dashboards
+          readOnly: true
+        - name: grafana-dashboard-load-test
+          mountPath: /var/lib/grafana/dashboards
+          readOnly: true
         resources:
           limits:
             memory: 500M
@@ -35,3 +74,11 @@ spec:
           configMap:
               defaultMode: 420
               name: grafana-datasources
+        - name: grafana-dashboard-provider
+          configMap:
+              defaultMode: 420
+              name: grafana-dashboards
+        - name: grafana-dashboard-load-test
+          configMap:
+              defaultMode: 420
+              name: grafana-dashboard-load-test

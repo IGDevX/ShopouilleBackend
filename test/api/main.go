@@ -193,13 +193,13 @@ func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		if origin == "" {
 			origin = "*"
 		}
-		
+
 		w.Header().Set("Access-Control-Allow-Origin", origin)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, X-Grafana-Action, X-Grafana-Device-Id")
 		w.Header().Set("Access-Control-Expose-Headers", "*")
 		w.Header().Set("Access-Control-Max-Age", "3600")
-		
+
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)
 			return
